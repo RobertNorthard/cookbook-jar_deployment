@@ -38,30 +38,29 @@ def jar_user
 end
 
 def jar_args
-	@new_resource.jar_args
+	 @new_resource.jar_args
 end 
 
 # Deploy jar
 action :deploy do
-
-	resources = [] 
+	 resources = [] 
 
   # Create deploy directory
   resources << (directory deploy_directory do
-   owner jar_user
-   group jar_user
-	 mode '0755'
-	 recursive true
-	 action :create
+    owner jar_user
+    group jar_user
+ 	  mode '0755'
+ 	  recursive true
+ 	  action :create
   end)
 
   # Create deploy directory
   resources << (directory log_directory do
-   owner jar_user
-   group jar_user
-	 mode '0755'
-	 recursive true
-	 action :create
+    owner jar_user
+    group jar_user
+ 	  mode '0755'
+ 	  recursive true
+ 	  action :create
   end)
 
   resources << (remote_file "#{deploy_directory}/#{jar_name}.jar" do
@@ -79,10 +78,10 @@ action :deploy do
     owner user
     group user
     variables ({
-    	name: jar_name,
-    	user: jar_user,
-    	deploy_directory: deploy_directory,
-    	log_directory: log_directory
+    	 name: jar_name,
+    	 user: jar_user,
+    	 deploy_directory: deploy_directory,
+    	 log_directory: log_directory
     })
     mode '0755'
     notifies :restart, "service[#{jar_name}]", :delayed
@@ -90,13 +89,13 @@ action :deploy do
 
   # Start service
   resources << (service jar_name do
-  	action [:enable, :start]
+  	 action [:enable, :start]
   end)
 
   res = false
 
   resources.each do |r|
-  	res ||= r.updated?
+  	 res ||= r.updated?
   end
   
   new_resource.updated_by_last_action(res)
@@ -104,17 +103,16 @@ end
 
 # Delete deployed jar
 action :delete do
-
-	resources = []
+	 resources = []
 
   # Stop service first
   resources << (service jar_name do
-  	action :stop
+  	 action :stop
   end)
 
   [
-  	"#{deploy_directory}/#{jar_name}.jar",
-  	"/etc/init.d/#{jar_name}"
+  	 "#{deploy_directory}/#{jar_name}.jar",
+  	 "/etc/init.d/#{jar_name}"
   ].each do |res|
     resources << (file res do
       action :delete
@@ -124,7 +122,7 @@ action :delete do
   res = false
 
   resources.each do |r|
-  	res ||= r.updated?
+  	 res ||= r.updated?
   end
   
   new_resource.updated_by_last_action(res)

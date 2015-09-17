@@ -1,10 +1,10 @@
-name             'jar_deployment'
-maintainer       'robertnorthard'
+name 'jar_deployment'
+maintainer 'robertnorthard'
 maintainer_email 'robertnorthard@googlemail.com'
-license          'All rights reserved'
-description      'Installs/Configures jar_deployment'
+license 'All rights reserved'
+description 'Installs/Configures jar_deployment'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '0.1.0'
+version '0.1.0'
 
 supports 'centos', '>= 6.6'
 
