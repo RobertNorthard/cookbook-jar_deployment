@@ -44,35 +44,37 @@ end
 # Deploy jar
 action :deploy do
 
+	resouces = [] 
+
   # Create deploy directory
-  directory deploy_directory do
-    owner jar_user
-    group jar_user
+  resource << (directory deploy_directory do
+   owner jar_user
+   group jar_user
 	 mode '0755'
 	 recursive true
 	 action :create
-  end
+  end)
 
   # Create deploy directory
-  directory log_directory do
-    owner jar_user
-    group jar_user
+  resource << (directory log_directory do
+   owner jar_user
+   group jar_user
 	 mode '0755'
 	 recursive true
 	 action :create
-  end
+  end)
 
-  remote_file "#{deploy_directory}/#{jar_name}.jar" do
+  resource << (remote_file "#{deploy_directory}/#{jar_name}.jar" do
     source jar_location
     owner jar_user
     group jar_user
     checksum checksum
     mode '0755'
     action :create
-  end
+  end)
 
   # Template service script
-  template "/etc/init.d/#{jar_name}" do
+  resource << (template "/etc/init.d/#{jar_name}" do
     source 'service.init.d.erb.rb'
     owner user
     group user
@@ -84,31 +86,46 @@ action :deploy do
     })
     mode '0755'
     notifies :restart, "service[#{jar_name}]", :delayed
-  end
+  end)
 
   # Start service
-  service jar_name do
+  resource << (service jar_name do
   	action [:enable, :start]
-  end
+  end)
 
-  new_resource.updated_by_last_action(false)
+  res = false
+
+  resources.each do |r|
+  	res &= r.updated?
+  end
+  
+  new_resource.updated_by_last_action(res)
 end
 
 # Delete deployed jar
 action :delete do
 
+	resources = []
+
   # Stop service first
-  service jar_name do
+  resources << (service jar_name do
   	action :stop
-  end
+  end)
 
   [
   	"#{deploy_directory}/#{jar_name}.jar",
   	"/etc/init.d/#{jar_name}"
   ].each do |res|
-    file res do
+    resources << (file res do
       action :delete
-    end
+    end)
   end
 
+  res = false
+
+  resources.each do |r|
+  	res &= r.updated?
+  end
+  
+  new_resource.updated_by_last_action(res)
 end
