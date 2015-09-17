@@ -44,10 +44,10 @@ end
 # Deploy jar
 action :deploy do
 
-	resouces = [] 
+	resources = [] 
 
   # Create deploy directory
-  resource << (directory deploy_directory do
+  resources << (directory deploy_directory do
    owner jar_user
    group jar_user
 	 mode '0755'
@@ -56,7 +56,7 @@ action :deploy do
   end)
 
   # Create deploy directory
-  resource << (directory log_directory do
+  resources << (directory log_directory do
    owner jar_user
    group jar_user
 	 mode '0755'
@@ -64,7 +64,7 @@ action :deploy do
 	 action :create
   end)
 
-  resource << (remote_file "#{deploy_directory}/#{jar_name}.jar" do
+  resources << (remote_file "#{deploy_directory}/#{jar_name}.jar" do
     source jar_location
     owner jar_user
     group jar_user
@@ -74,7 +74,7 @@ action :deploy do
   end)
 
   # Template service script
-  resource << (template "/etc/init.d/#{jar_name}" do
+  resources << (template "/etc/init.d/#{jar_name}" do
     source 'service.init.d.erb.rb'
     owner user
     group user
@@ -89,7 +89,7 @@ action :deploy do
   end)
 
   # Start service
-  resource << (service jar_name do
+  resources << (service jar_name do
   	action [:enable, :start]
   end)
 
