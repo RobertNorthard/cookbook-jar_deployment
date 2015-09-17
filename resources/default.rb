@@ -9,9 +9,9 @@ This resource facilitates jar deployment.
 
     # An example of deploying a service
     jar_deployment 'service_name' do
-	    deploy_directory '/opt/application'
-	    jar_location 'http://example.com/repo/jar/application.jar'
-	    jar_checksum '45hj35jk34h53j4h5k'
+      deploy_directory '/opt/application'
+      jar_location 'http://example.com/repo/jar/application.jar'
+      jar_checksum '45hj35jk34h53j4h5k'
       jar_args {
 		    '--server-port': 8080
       }
