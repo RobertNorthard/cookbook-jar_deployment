@@ -96,7 +96,7 @@ action :deploy do
   res = false
 
   resources.each do |r|
-  	res &= r.updated?
+  	res ||= r.updated?
   end
   
   new_resource.updated_by_last_action(res)
@@ -124,7 +124,7 @@ action :delete do
   res = false
 
   resources.each do |r|
-  	res &= r.updated?
+  	res ||= r.updated?
   end
   
   new_resource.updated_by_last_action(res)
