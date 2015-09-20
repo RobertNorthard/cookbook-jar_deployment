@@ -3,6 +3,10 @@ jar_deployment CHANGELOG
 
 This file is used to list changes made in each version of the jar_deployment cookbook.
 
+0.1.1
+-----
+- Robert Northard - Added source/issues URL to cookbook metadata.
+
 0.1.0
 -----
 - Robert Northard - Initial release of jar_deployment
