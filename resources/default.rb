@@ -43,7 +43,7 @@ attribute :jar_location, kind_of: String, required: false
 attribute :jar_checksum, kind_of: String, required: false
 
 #<> @attribute args runtime arguments e.g. port, application properties.
-attribute :jar_args, kind_of: Hash, default: { '--server-port' => 8080 }
+attribute :jar_args, kind_of: Hash, default: Hash.new
 
 #<> @attribute jar_user user to deploy and run jar with
-attribute :jar_user, kind_of: String, default: 'root'
+attribute :jar_user, kind_of: String

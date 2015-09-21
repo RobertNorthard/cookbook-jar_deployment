@@ -3,6 +3,10 @@ jar_deployment CHANGELOG
 
 This file is used to list changes made in each version of the jar_deployment cookbook.
 
+0.2.0
+-----
+- Robert Northard - Added java args parsing to service script.
+
 0.1.1
 -----
 - Robert Northard - Added source/issues URL to cookbook metadata.

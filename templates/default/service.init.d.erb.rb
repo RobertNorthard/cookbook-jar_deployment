@@ -1,57 +1,89 @@
-#!/bin/bash
-# chkconfig: - 84 16
-# description: JAR service script.
-# Source function library.
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start jar at boot time
+# Description:       Enable service provided by jar.
+### END INIT INFO
+service_name=<%= @name %>
+service_user=<%= @user %>
+path_to_jar=<%= @deploy_directory %>/$service_name.jar
+pid_file=/tmp/$service_name
+log=<%= @log_directory %>/$service_name.log
+jar_args="<%= @jar_args %>"
 
-SERVICE_NAME=<%= @name %>
-PATH_TO_JAR=<%= @deploy_directory %>/$SERVICE_NAME.jar
-PID_PATH_NAME=/tmp/$SERVICE_NAME
-LOG=<%= @log_directory %>/$SERVICE_NAME.log
+get_pid() {
+    cat "$pid_file"
+}
 
-case $1 in
+is_running() {
+    [ -f "$pid_file" ] && ps `get_pid` > /dev/null 2>&1
+}
+
+case "$1" in
     start)
-        echo "Starting $SERVICE_NAME ..."
-        if [ ! -f $PID_PATH_NAME ]; then
-            su $SERVICE_USER -c "nohup java -jar $PATH_TO_JAR \"$PATH_TO_JAR\"  >> \"$LOG\" 2>&1 &"
-            ps aux | grep $SERVICE_NAME.jar | head -n 1 | awk '{print $2}' > $PID_PATH_NAME
-            echo "$SERVICE_NAME started ..."
-        else
-            echo "$SERVICE_NAME is already running ..."
+    if is_running; then
+        echo "Already started"
+    else
+        echo "Starting $name"
+        su $service_user -c "nohup java -jar $path_to_jar $jar_args >> \"$log\" 2>&1 &"
+        ps aux | grep $SERVICE_NAME.jar | head -n 1 | awk '{print $2}' > "$pid_file"
+        echo "$SERVICE_NAME started ..."
+        if ! is_running; then
+            echo "Unable to start, see $stdout_log and $stderr_log"
+            exit 1
         fi
+    fi
     ;;
     stop)
-        if [ -f $PID_PATH_NAME ]; then
-            PID=$(cat $PID_PATH_NAME);
-            echo "$SERVICE_NAME stoping ..."
-            kill -9 $PID 2>&1;
-            echo "$SERVICE_NAME stopped ..."
-            rm $PID_PATH_NAME
+    if is_running; then
+        echo -n "Stopping $name.."
+        kill `get_pid`
+        for i in {1..10}
+        do
+            if ! is_running; then
+                break
+            fi
+
+            echo -n "."
+            sleep 1
+        done
+        echo
+
+        if is_running; then
+            echo "Not stopped; may still be shutting down or shutdown may have failed"
+            exit 1
         else
-            echo "$SERVICE_NAME is not running ..."
+            echo "Stopped"
+            if [ -f "$pid_file" ]; then
+                rm "$pid_file"
+            fi
         fi
-    ;;
-    status)
-        if [ -f $PID_PATH_NAME ]; then
-            echo "$SERVICE_NAME is running ..."
-            echo 1
-        else
-            echo "$SERVICE_NAME is not running ..."
-            exit 0
-        fi
+    else
+        echo "Not running"
+    fi
     ;;
     restart)
-        if [ -f $PID_PATH_NAME ]; then
-            PID=$(cat $PID_PATH_NAME);
-            echo "$SERVICE_NAME stopping ...";
-            kill $PID;
-            echo "$SERVICE_NAME stopped ...";
-            rm $PID_PATH_NAME
-            echo "$SERVICE_NAME starting ..."
-            nohup java -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
-            ps aux | grep $SERVICE_NAME.jar | head -n 1 | awk '{print $2}' > $PID_PATH_NAME  
-            echo "$SERVICE_NAME started ..."
-        else
-            echo "$SERVICE_NAME is not running ..."
-        fi
+    $0 stop
+    if is_running; then
+        echo "Unable to stop, will not attempt to start"
+        exit 1
+    fi
+    $0 start
     ;;
-esac 
+    status)
+    if is_running; then
+        echo "Running"
+    else
+        echo "Stopped"
+        exit 1
+    fi
+    ;;
+    *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+
+exit 0

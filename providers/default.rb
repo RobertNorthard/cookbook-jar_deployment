@@ -67,22 +67,33 @@ action :deploy do
     source jar_location
     owner jar_user
     group jar_user
-    checksum checksum
     mode '0755'
     action :create
   end)
+
+  template_variables = {
+    name: jar_name,
+    user: jar_user,
+    deploy_directory: deploy_directory,
+    log_directory: log_directory
+  }
+
+  unless jar_args.empty?
+    args = ""
+
+    jar_args.each do |key, value|
+      args +="#{key}=#{value} "
+    end
+
+    template_variables['jar_args'] = args
+  end
 
   # Template service script
   resources << (template "/etc/init.d/#{jar_name}" do
     source 'service.init.d.erb.rb'
     owner user
     group user
-    variables ({
-       name: jar_name,
-       user: jar_user,
-       deploy_directory: deploy_directory,
-       log_directory: log_directory
-    })
+    variables template_variables
     mode '0755'
     notifies :restart, "service[#{jar_name}]", :delayed
   end)
