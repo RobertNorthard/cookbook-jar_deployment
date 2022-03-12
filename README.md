@@ -65,6 +65,4 @@ This resource facilitates jar deployment.
 
 # License and Maintainer
 
-Maintainer:: robertnorthard (<robertnorthard@googlemail.com>)
-
 License:: All rights reserved
